@@ -1,0 +1,427 @@
+#!/bin/bash
+#
+##
+## This is AutoSkyWarn 3 Version 170322
+## Written by KF5VH - Steve Mahler
+## Permission to use requires that the above
+##  credit is maintained in all Shell Scripts.
+##
+#
+# Extensively rewritten and adapted to Hamvoip Allstar RPI
+# WA3DSP 3/2017
+
+# suppressed multiple same alerts
+# KB4FXC 5/22/2018
+
+# Added second node - define in AutoSky.ini
+# WA3DSP 4/2018
+
+# Added multiple node play on server defined in
+# AutoSky.ini 
+# KB4FXC 5/22/2018
+
+# Added code to write plain alert text for use by
+# other programs such as Supermon
+# Saved to $TMPDIR/warnings.txt
+# WA3DSP 11/3/2018
+
+# Added 1 second of silence on tail message
+# WA3DSP 2/2019
+
+# All user configurable items are in AutoSKy.ini
+# Do not modify anything below this line unless
+# You know what you are doing.
+
+script_dir=$(dirname "$0")
+source "$script_dir/AutoSky.ini"
+
+# Initialize all parameters
+
+function AutoSky_init {
+# Parameter Initialization for AUTOSKY 
+
+if [ ! -d "/$TMPDIR" ]
+   then
+     mkdir "/$TMPDIR"
+fi
+if [ ! -d "/$TMPDIR/WXA" ]
+  then
+    mkdir  "/$TMPDIR/WXA"
+fi
+
+TFILET="$TMPDIR/alert.txtt"     # temp file
+NFILE1="$TMPDIR/alert.txt1"     # from NWS
+NFILE2="$TMPDIR/alert.txt2"     # Just alert text
+NFILE3="$TMPDIR/alert.txt3"     # Formulated alert message to play
+#
+ENABLEFILE="$TMPDIR/alert.enbl" # if exists then enable Auto SkyWarn
+FILESAVE="$TMPDIR/alert.save"   # we compare against this file to determine chan
+WFILE="$TMPDIR/alert.work"
+WFILEWC="$TMPDIR/alert.workwc"
+if [ -z $AutoSky_log ]
+  then
+    AutoSky_log="$TMPDIR/AutoSky-log.txt"
+fi
+#
+WXT="$TMPDIR/WXA"		# where you store the weather tail message
+TAILMSG="wx-tail.wav"           # point to this file in rpt.conf
+WXA="$BASEDIR/SOUNDS"		# where the sounds are
+TFILEW="alert.wav"		# temp file
+
+#Xresult=98
+#Yresult=99
+#
+A1FILE=asn96
+A2FILE=asn97
+A3FILE=asn98
+#
+ANNN="xx"         # Announcement Number
+FOUNDONE=0        # Found at least one match
+#
+CATWAV=`which sox`
+BUILD1="asn"
+BUILD3=".wav"
+
+}
+
+# Initialize Message Strings
+function init_warnings {
+
+declare -g -a WS
+declare -g -a WA
+
+# WARNING STRINGS
+
+WS[1]="Hurricane Force Wind Warning"
+WS[2]="Severe Thunderstorm Warning"
+WS[3]="Severe Thunderstorm Watch"
+WS[4]="Winter Weather Advisory"
+WS[5]="Tropical Storm Warning"
+WS[6]="Special Marine Warning"
+WS[7]="Freezing Rain Advisory"
+WS[8]="Special Weather Statement"
+WS[9]="Excessive Heat Warning"
+WS[10]="Coastal Flood Advisory"
+WS[11]="Coastal Flood Warning"
+WS[12]="Winter Storm Warning"
+WS[13]="Tropical Storm Watch"
+WS[14]="Thunderstorm Warning"
+WS[15]="Small Craft Advisory"
+WS[16]="Extreme Wind Warning"
+WS[17]="Excessive Heat Watch"
+WS[18]="Wind Chill Advisory"
+WS[19]="Storm Surge Warning"
+WS[20]="River Flood Warning"
+WS[21]="Flash Flood Warning"
+WS[22]="Coastal Flood Watch"
+WS[23]="Winter Storm Watch"
+WS[24]="Wind Chill Warning"
+WS[25]="Thunderstorm Watch"
+WS[26]="Fire Weather Watch"
+WS[27]="Dense Fog Advisory"
+WS[28]="Storm Surge Watch"
+WS[29]="River Flood Watch"
+WS[30]="Ice Storm Warning"
+WS[31]="Hurricane Warning"
+WS[32]="High Wind Warning"
+WS[33]="Flash Flood Watch"
+WS[34]="Red Flag Warning"
+WS[35]="Blizzard Warning"
+WS[36]="Tornado Warning"
+WS[37]="Hurricane Watch"
+WS[38]="High Wind Watch"
+WS[39]="Frost Advisory"
+WS[40]="Freeze Warning"
+WS[41]="Wind Advisory"
+WS[42]="Tornado Watch"
+WS[43]="Storm Warning"
+WS[44]="Heat Advisory"
+WS[45]="Flood Warning"
+WS[46]="Gale Warning"
+WS[47]="Freeze Watch"
+WS[48]="Flood Watch"
+
+# ANNOUNCEMENT STRINGS
+
+WA[1]="01"
+WA[2]="02"
+WA[3]="03"
+WA[4]="04"
+WA[5]="05"
+WA[6]="06"
+WA[7]="07"
+WA[8]="08"
+WA[9]="09"
+WA[10]="10"
+WA[11]="11"
+WA[12]="12"
+WA[13]="13"
+WA[14]="14"
+WA[15]="15"
+WA[16]="16"
+WA[17]="17"
+WA[18]="18"
+WA[19]="19"
+WA[20]="20"
+WA[21]="21"
+WA[22]="22"
+WA[23]="23"
+WA[24]="24"
+WA[25]="25"
+WA[26]="26"
+WA[27]="27"
+WA[28]="28"
+WA[29]="29"
+WA[30]="30"
+WA[31]="31"
+WA[32]="32"
+WA[33]="33"
+WA[34]="34"
+WA[35]="35"
+WA[36]="36"
+WA[37]="37"
+WA[38]="38"
+WA[39]="39"
+WA[40]="40"
+WA[41]="41"
+WA[42]="42"
+WA[43]="43"
+WA[44]="44"
+WA[45]="45"
+WA[46]="46"
+WA[47]="47"
+WA[48]="48"
+
+}
+
+function autosky_log {
+
+echo "`date` - $1" >> $AutoSky_log 
+
+}
+
+
+# Start main Script
+
+AutoSky_init
+
+# IS AUTOSKY ENABLED?
+if [ ! -e "$ENABLEFILE" ]
+  then
+	echo "AutoSky not enabled - use AutoSky.ON to enable"
+	exit -90
+  else
+	touch "$ENABLEFILE"	# Keep enable file with recent timestamp
+fi
+ 
+# Check for test file set in autosky.ini
+if [ -e "$TMPDIR/test.file" ]
+	then
+		/bin/cp -f $TMPDIR/test.file $NFILE1
+		/bin/rm -f $TMPDIR/test.file
+	else
+		# No test file PULL THE REAL INFORMATION FROM NWS
+		/usr/bin/wget --no-check-certificate  -O $NFILE1 $OFILE  2>/dev/null
+
+fi
+
+# COPY ONLY ONE SECTION TYPE (can be multiple)
+sed -n '/title/p' < $NFILE1 > $NFILE2
+
+/bin/sed -i "1d" $NFILE2
+
+# NOW GET RID OF THE MARKERS
+/bin/sed -i 's%</title>%%' $NFILE2
+/bin/sed -i  's%<title>%%' $NFILE2
+
+# NFILE1 contains complete message
+# NFILE2 contains just alert message
+
+# DOES NEW NWS FILE = OLD SAVE FILE
+#
+/usr/bin/diff $NFILE2 $FILESAVE > /dev/null 2> /dev/null
+# If match=0  non match=1 error=2
+# This result is printed if running manually ignored otherwise
+Xresult="$?"
+echo "AutoSky Xresult is $Xresult"
+#cat $NFILE1
+#cat $NFILE2
+
+case  $Xresult  in
+         0)       
+	  # echo MATCH - NOTHING TO DO
+	    exit 0
+            ;;
+         1)       
+          # echo CURRENT VS LAST MISMATCH - CHANGE ANNOUNCEMENT so CALL AutoSky2
+          # ./AutoSky2
+          # IF RESULT HAS NO LINES - PROCESS ERROR BELOW
+	    Xresult=`wc -l < $NFILE2`
+
+            case  $Xresult  in
+                     0)       
+		     # echo  "AutoSky2 FAILURE MODE 0 - FILE SHOULD HAVE AT LEAST ONE REMAINING LINE"
+                     exit -5
+                     ;;
+
+                     *)       
+                      # MIGHT BE A CLEAR MESSAGE OR SINGLE or MULTIPLE ALERT
+                      # CHECK FOR ALL CLEAR MESSAGE if NOT SET ANNOUNCEMENTS
+                      /bin/grep -i "There are no active watches, warnings or advisories" $NFILE2 > /dev/null
+                      Yresult=$?
+
+                      if [ $Yresult -eq 0 ]
+                           then
+                           #  AutoSky2 MATCHED - NO W, W or As so CALL AutoSky3
+                           # ./AutoSky3
+			   # COMMIT TO CHANGE
+			   # COPY CURRENT MESSAGE TO SAVE MESSAGE FILE
+			   # THIS BECOMES THE "Existing" Weather Conditions
+			   /bin/cp -f $NFILE2 $FILESAVE
+			   # SAY "tones NWS HAS CLEARED ALL ALERTS, WATCHES and WARNINGS FOR AREA"
+			   for Ni in $NODE ; do
+			   	if [ ! -z "$Ni" ] ; then /usr/sbin/asterisk -rx "rpt localplay $Ni $WXA/$A1FILE" ; fi 
+			   done
+			   # Clear Warnigs text file
+                           > $TMPDIR/warnings.txt
+
+			   # COPY WORD-SPACE AUDIO to the WX TAIL MESSAGE
+			   # THE WORD-SPACE WAV IS ASN99
+			   /bin/rm -f $WXT/$TAILMSG
+			   /bin/cp -f $WXA/asn99.wav $WXT/$TAILMSG
+			   autosky_log "Clear Alerts"
+			   /bin/sync
+			   exit 0
+                           # exit $?
+                      else
+                           # NO MATCH - WE HAVE A CHANGE IN THE WEATHER so CALL AutoSky4
+			   init_warnings	
+				
+			   # COMMITTED TO CHANGE
+			   # COPY CURRENT MESSAGE TO SAVE MESSAGE FILE
+
+			   /bin/cp -f $NFILE2 $FILESAVE
+
+			   # ONLY PROCESS LINES WITH SPECIFIC KEY WORDS
+			   #   ALL WARNINGS BEFORE WATCHES BEFORE ...
+
+			   rm -f $NFILE3
+			   /bin/grep -i "Warning"  < $NFILE2  >  $NFILE3
+			   /bin/grep -i "Watch"    < $NFILE2  >> $NFILE3
+			   /bin/grep -i "Advisory" < $NFILE2  >> $NFILE3
+			   /bin/grep -i "Special Weather" < $NFILE2  >> $NFILE3
+
+			   # CLEAR THE EXISTING TAILMSG
+			   # COPY WORD-SPACE AUDIO to the WX TAIL MESSAGE
+			   # THE WORD-SPACE WAV IS ASN99
+			   /bin/cp -f  $WXA/asn99.wav $WXT/$TAILMSG
+
+			   # MARK AS NOTHING FOUND IN FILE NFILE3
+			   FOUNDONE=0
+			   # Clear Warnings text file
+                           > $TMPDIR/warnings.txt
+			   First_Warning=1
+			   while IFS= read -r line
+			   do
+
+			   # Look for string in current line
+			   # If match, copy audio and "pause" to wx-tail, continue (get next line)
+
+			      for (( i=1; i<49; i++ )) ;
+			      do
+
+			            if [[ $line =~ ${WS[${i}]} ]] ; then
+				       	ANNN=${WA[$i]}
+
+					# ANNN PARAMETER VALUE IS $ANNN
+					if [ $ANNN = "000" ] ; then
+						# Announcement ALREADY used once! -- don't add it again
+						break
+					else
+						# Announcement added. Mark WA array as announcement used
+						WA[$i]="000"
+					# Put alert in warnings.txt file
+					if [ $First_Warning -eq 1 ]
+					   then
+						echo "$Coverage_Area - " > $TMPDIR/warnings.txt
+						First_Warning=0
+					fi
+					echo "[ ${WS[${i}]} ]" >> $TMPDIR/warnings.txt
+
+                                        fi
+					# BUILD TAILMSG - NOW ADD A "AUDIO TIC" TO THE TAILMSG
+					/bin/rm -f  $TMPDIR/$TFILEW     #Make available for output
+					
+					$CATWAV     $WXT/$TAILMSG $WXA/asn95C.wav $TMPDIR/$TFILEW
+					/bin/cp -f  $TMPDIR/$TFILEW   $WXT/$TAILMSG
+
+					# BUILD TAILMSG - NOW ADDING THE NEW ALERT TO THE TAILMSG
+					/bin/rm -f  $TMPDIR/$TFILEW     #Make available for output
+					$CATWAV     $WXT/$TAILMSG $WXA/${BUILD1}${ANNN}${BUILD3} $TMPDIR/$TFILEW
+					/bin/cp -f  $TMPDIR/$TFILEW   $WXT/$TAILMSG
+
+					# BUILD TAILMSG - NOW ADD A "WORDSPACE" TO THE TAILMSG
+					/bin/rm -f  $TMPDIR/$TFILEW     #Make available for output
+					$CATWAV     $WXT/$TAILMSG $WXA/asn99.wav $TMPDIR/$TFILEW
+					/bin/cp -f  $TMPDIR/$TFILEW   $WXT/$TAILMSG
+
+		               		FOUNDONE=1
+					autosky_log "Alert issued - $line"
+			       		/bin/sync
+			       		break 
+		           	    else
+					# CURRENT TEST DOES NOT MATCH - SHOULD IT BE ADDED TO LIST?
+					# echo WS STRING NO MATCH
+ 			     	        :
+				    fi
+      			     	done
+
+			     done < "$NFILE3"
+
+			/bin/sync
+
+			if [[ $FOUNDONE -eq 0 ]] ; then
+
+     				# DIDN'T FIND A MATCH - PLAY ERROR TONE
+				for Ni in $NODE ; do
+					if [ ! -z "$Ni" ] ; then /usr/sbin/asterisk -rx "rpt localplay $Ni $WXA/$A3FILE" ; fi 
+				done
+   			else
+				# Copy 1 second of tail to message
+				/bin/cp -f  $WXT/$TAILMSG $TMPDIR/$TFILEW   
+				$CATWAV $TMPDIR/$TFILEW $WXA/silence1.wav $WXT/$TAILMSG
+				#
+     				# NOW SAY SOMETHING ABOUT THE NEW LEVEL OF WARNINGS
+     				# THIS WILL BE A LOCAL PLAY OF A2FILE
+				for Ni in $NODE ; do
+					if [ ! -z "$Ni" ] ; then /usr/sbin/asterisk -rx "rpt localplay $Ni $WXA/$A2FILE" ; fi 
+				done
+				/bin/sleep 3
+				# NOW PLAY THE NEW WX STATUS
+				MSG=`basename $TAILMSG .wav`
+				for Ni in $NODE ; do
+					if [ ! -z "$Ni" ] ; then /usr/sbin/asterisk -rx "rpt localplay $Ni $WXT/$MSG" ; fi
+				done
+			#     exit $?
+
+			fi
+
+			exit 0
+
+                   fi
+            esac 
+  	    exit $?
+            ;;
+         2)
+#    	    echo DIFF COMMAND FAILED. Xresult was 2.
+#           Probably no first time saved file so initialize it
+	    /bin/cp -f $NFILE1 $FILESAVE
+	
+            exit -92
+            ;;            
+         *)              
+#	    echo BIG FAIL. Xresult was NOT 0, 1 or 2.
+	    exit -93
+esac 
+
+exit -94
