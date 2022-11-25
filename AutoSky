@@ -237,8 +237,8 @@ if [ -e "$TMPDIR/test.file" ]
 		#I=0
 		for X in "${OF[@]}"
 		do
-			/usr/bin/wget $X --no-check-certificate -O ->> $NFILE1
-			#/usr/bin/curl $X
+			#/usr/bin/wget $X --no-check-certificate -O ->> $NFILE1
+			/usr/bin/curl $X
 			#/usr/bin/curl $X >> $NFILE1
 		done
 fi
