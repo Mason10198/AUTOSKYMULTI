@@ -217,13 +217,13 @@ echo "`date` - $1" >> $AutoSky_log
 AutoSky_init
 
 # IS AUTOSKY ENABLED?
-if [ ! -e "$ENABLEFILE" ]
-  then
-	echo "AutoSky not enabled - use AutoSky.ON to enable"
-	exit -90
-  else
-	touch "$ENABLEFILE"	# Keep enable file with recent timestamp
-fi
+#if [ ! -e "$ENABLEFILE" ]
+#  then
+#	echo "AutoSky not enabled - use AutoSky.ON to enable"
+#	exit -90
+#  else
+#	touch "$ENABLEFILE"	# Keep enable file with recent timestamp
+#fi
  
 # Check for test file set in autosky.ini
 if [ -e "$TMPDIR/test.file" ]
@@ -234,13 +234,12 @@ if [ -e "$TMPDIR/test.file" ]
 		# No test file PULL THE REAL INFORMATION FROM NWS
 		#/usr/bin/wget --no-check-certificate  -O $NFILE1 $OFILE  2>/dev/null
 		if [ -e $NFILE1 ] ; then /bin/rm $NFILE1 ; fi
-		touch $NFILE1
 		#I=0
-		for OF in "${OF[@]}"
+		for X in "${OF[@]}"
 		do
-			/usr/bin/wget $OF --no-check-certificate -O ->> $NFILE1
-			#/usr/bin/curl $OF
-			#/usr/bin/curl $OF >> $NFILE1
+			/usr/bin/wget $X --no-check-certificate -O ->> $NFILE1
+			#/usr/bin/curl $X
+			#/usr/bin/curl $X >> $NFILE1
 		done
 fi
 
