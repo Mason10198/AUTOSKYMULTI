@@ -233,11 +233,11 @@ if [ -e "$TMPDIR/test.file" ]
 	else
 		# No test file PULL THE REAL INFORMATION FROM NWS
 		#/usr/bin/wget --no-check-certificate  -O $NFILE1 $OFILE  2>/dev/null
-		/bin/rm $NFILE1
-		i = 0
+		if [ -e $NFILE1 ] ; then /bin/rm $NFILE1 ; fi
+		#I=0
 		for OF in "${OF[@]}"
 		do
-			#/usr/bin/wget --no-check-certificate -O $NFILE1$i $OF 2>/dev/null
+			#/usr/bin/wget --no-check-certificate -O $NFILE1$I $OF 2>/dev/null
 			/usr/bin/curl -s $OF >> $NFILE1
 		done
 fi
