@@ -1,66 +1,40 @@
-# AutoSky README for hamvoip Allstar on the Pi
-##
-## This is AutoSkyWarn 3 Version 170322
-## Written by KF5VH - Steve Mahler  - Go Boilers!!
-## Permission to use requires that the above
-##  credit is maintained in all Shell Scripts.
-##
-If you change / improve the software ... Add your name & callsign!
-
-For hamvoip package changes submit to WA3DSP (email at QRZ) 
-
-This software and README extensively updated by WA3DSP 3/2017
-
-For hamvoip installations this software only requires the
-setting of your county ID as describe in the AutoSky.ini file
-
-All user changeable items are in the AutoSky.ini file
-
-The following are the steps for setup of AUTOSKY in the
-hamvoip software. 
+This is a custom version of AutoSkywarn that has been modified to check MULTIPLE counties.
 
 (1)
-Find your county URL and update in AutoSky.ini
+Find your county URL(s) and update in AutoSkyMulti
 
 Visit  https://alerts.weather.gov/ and select your state
 and county. Click on the ATOM link and copy the URL.
-Paste the URL into the $OFILE line. It will look like this:
+Paste the URL into the array in the AutoSkyMulti script. It will look like this:
 
-OFILE="https://alerts.weather.gov/cap/wwaatmget.php?x=PAC017&y=0"
+# LIST OF COUNTIES
+OF[1]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC045&y=0" # Faulkner
+OF[2]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC051&y=0" # Garland
+OF[3]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC053&y=0" # Grant
+OF[4]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC085&y=0" # Lonoke
+OF[5]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC105&y=0" # Perry
+OF[6]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC119&y=0" # Pulaski
+OF[7]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC125&y=0" # Saline
 
-The URL will look different after the /cap/  for your
-particular county.
+2)
+Make sure the AutoSkyMulti script is executable, and that curl is installed.
 
-(2)
-At this point you can test run AutoSky. If you are in 
-the AUTOSKY directory type   ./Autosky
-
-On the first run it will tell you it is not enabled. 
-Autosky always come up in the OFF state at boot.
-
-To enable type:
-
-./AutoSky.ON
-
-You can also type:  ./AutoSky.OFF 
-should you want to disable alerts. 
-
-See step 5 below for an automated way to do this.
+sudo chmod +x AutoSkyMulti
+sudo apt install curl
 
 3)
-Add a crontab entry to poll data
-crontab -e and add this line
+Add a crontab entry to poll data.
+Run sudo crontab -e and add this line
 Note there are spaces between the *'s.
 
-*/4 * * * * /usr/local/bin/AUTOSKY/AutoSky
+* * * * * /usr/local/bin/AUTOSKYMULTI/AutoSkyMulti
 
-Change the */4 for interval you desire
-*/4 is a four minute poll cycle
+This will poll every minute.
 
 (4)
 TAILMSG path and file name is setup in  rpt.conf in 
-the nodes section for the first node or the node you 
-specified in the AutoSky.ini file.
+the nodes section for the node(s) you
+specified in the AutoSkyMulti.ini file.
 
 Tail messages can be added in addition to WX alerts
 for system announcements such as club meetings, events, etc. 
@@ -79,10 +53,10 @@ you may miss important warnings and messages.
  tailsquashedtime=60000    ; If squashed by a user TX, try again after 60 seconds (60000)
  ;
  ; TAILMESSAGELIST HAS LIST OF ROTATING MESSAGES TO BE PLAYED FOR TAIL MESSAGE
- ; This hows the tail message for hamvoip AutoSky. You can add additional 
- ; message files separated with a comma
+ ; This hows the tail message for AutoSkyMulti. You can add additional 
+ ; message files separated with a comma.
  ;
- tailmessagelist=/tmp/AUTOSKY/WXA/wx-tail
+ tailmessagelist=/tmp/AUTOSKYMULTI/WXA/wx-tail
  ;
 
 TAIL MESSAGES NOTES
@@ -91,7 +65,7 @@ Many use tail messages to send club announcements and other info
 on a repeater. A exaple of how to do this dynamically is to
 specify an announcement file in addition to the WX alert file.
 
-tailmessagelist=/tmp/AUTOSKY/WXA/wx-tail,/etc/asterisk/local/announcements
+tailmessagelist=/tmp/AUTOSKYMULTI/WXA/wx-tail,/etc/asterisk/local/announcements
 
 The announcements file would be an audio file, maybe announcments.wav.
 You do not include the suffix in the tailmessagelist.
@@ -102,58 +76,30 @@ announcements file.
 You can adjust the timings to your liking. Timings would also depend
 on the number of announcements besides WX alerts you have queued.
 
-(5)
-AutoSky.OFF and AutoSky.ON
-these turn the alert system off and on, just setup 2 command codes
-
-Run Autosky via cron or manually before issuing these commands
-
-This is also setup in rpt.conf in the functions section. Here
-is what the command would look like -
-
-880=cmd,/usr/local/bin/AUTOSKY/Autosky.OFF
-881=cmd,/usr/local/bin/AUTOSKY/Autosky.ON
-
-*880 = Alerts off
-*881 = Alerts on
-
-Voice feedback comfirms the action.
-
 ADDITIONAL NOTES
 
-rpt.sh in the AUTOSKY Directory
-
-is a small shell script that allows typing in a repeater dtmf string
-from a shell prompt instead of using   asterisk -rv  -or- a radio
-typing the leading star is optional
-
-The AUTOSKY SOUNDS directory contains the announcements for AutoSkyWarn.
+The SOUNDS directory contains the announcements for AutoSkyMulti.
 They are WAV 8K and can be replaced with sound files of your choice
 if desired. These are indexed files based on the alert. Do NOT change
 the names!
 
-Users can setup a command code to execute AutoSky and not wait for
+Users can setup a command code to execute AutoSkyMulti and not wait for
 the cron to execute. 
 
-882=cmd,/usr/local/bin/AUTOSKY/Autosky
+882=cmd,/usr/local/bin/AUTOSKYMULTI/AutoSkyMulti
 
-AutoSky.ini has "test" lines of code clearly marked.  Uncomment a line for testing
+AutoSkyMulti.ini has a "test" line of code clearly marked.  Uncomment the line for testing
 during nice weather. Just remember to recomment the line for normal operations.
 
-There is a log file located in the main AUTOSKY directory. This logs all
+There is a log file located in the main /tmp/AUTOSKYMULTI/ directory. This logs all
 alert changes with date and time for reference. Logs look like this -
 
-Wed Mar 29 11:28:02 EDT 2017 - Alert issued - Wind Advisory issued March 29 at 10:23AM CDT until March 29 at 6:00PM CDT by NWS
-Wed Mar 29 12:56:02 EDT 2017 - Alert issued - Wind Advisory issued March 29 at 10:23AM CDT until March 29 at 6:00PM CDT by NWS
-Wed Mar 29 12:56:02 EDT 2017 - Alert issued - Wind Advisory issued March 29 at 10:23AM CDT until March 29 at 6:00PM CDT by NWS
-Wed Mar 29 13:00:02 EDT 2017 - Alert issued - Wind Advisory issued March 29 at 10:23AM CDT until March 29 at 6:00PM CDT by NWS
 Wed Mar 29 17:08:02 EDT 2017 - Alert issued - Wind Advisory issued March 29 at 4:05PM CDT until March 29 at 6:00PM CDT by NWS
 Wed Mar 29 19:04:02 EDT 2017 - Clear Alerts
 
 The journal (log) will show the cron hits and display a result -
 
-Mar 29 23:44:01 Pi3-test CROND[14129]: (root) CMD (/root/test/AUTOSKY3/AutoSky)
-Mar 29 23:44:02 Pi3-test CROND[14128]: (root) CMDOUT (AutoSky Xresult is 0)
+Mar 29 23:44:02 Pi3-test CROND[14128]: (root) CMDOUT (AutoSkyMulti Xresult is 0)
 
 Xresult
 0 = No change
@@ -161,14 +107,3 @@ Xresult
 2 = error
 
 The journal is viewed by typing  'journalctl -f'  CNTRL-C to exit.
-
-I placed a file - say-wx-alert.sh - that could be run to say a one time alert or 
-with a 'C' parameter to give continuous alerts at a preset interval in place of
-using tailmessage. Tailmessage only gives alerts if a node is keyed. So if no
-one keys then you will not hear the repetitive alerts. This is just another
-option and example of how to do this without using tailmessages.
-
-I hope you find this package it useful.  Feedback appreciated.  Bon chance!!
-
-...STeve - KF5VH and Doug WA3DSP
-

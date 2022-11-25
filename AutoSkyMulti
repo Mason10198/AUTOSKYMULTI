@@ -1,44 +1,12 @@
 #!/bin/bash
-#
-##
-## This is AutoSkyWarn 3 Version 170322
-## Written by KF5VH - Steve Mahler
-## Permission to use requires that the above
-##  credit is maintained in all Shell Scripts.
-##
-#
-# Extensively rewritten and adapted to Hamvoip Allstar RPI
-# WA3DSP 3/2017
-
-# suppressed multiple same alerts
-# KB4FXC 5/22/2018
-
-# Added second node - define in AutoSky.ini
-# WA3DSP 4/2018
-
-# Added multiple node play on server defined in
-# AutoSky.ini
-# KB4FXC 5/22/2018
-
-# Added code to write plain alert text for use by
-# other programs such as Supermon
-# Saved to $TMPDIR/warnings.txt
-# WA3DSP 11/3/2018
-
-# Added 1 second of silence on tail message
-# WA3DSP 2/2019
-
-# All user configurable items are in AutoSKy.ini
-# Do not modify anything below this line unless
-# You know what you are doing.
 
 script_dir=$(dirname "$0")
-source "$script_dir/AutoSky.ini"
+source "$script_dir/AutoSkyMulti.ini"
 
 # Initialize all parameters
 
-function AutoSky_init {
-	# Parameter Initialization for AUTOSKY
+function AutoSkyMulti_init {
+	# Parameter Initialization for AUTOSKYMULTI
 
 	if [ ! -d "/$TMPDIR" ]; then
 		mkdir "/$TMPDIR"
@@ -56,8 +24,8 @@ function AutoSky_init {
 	FILESAVE="$TMPDIR/alert.save"   # we compare against this file to determine chan
 	WFILE="$TMPDIR/alert.work"
 	WFILEWC="$TMPDIR/alert.workwc"
-	if [ -z $AutoSky_log ]; then
-		AutoSky_log="$TMPDIR/AutoSky-log.txt"
+	if [ -z $AutoSkyMulti_log ]; then
+		AutoSkyMulti_log="$TMPDIR/AutoSkyMulti-log.txt"
 	fi
 	#
 	WXT="$TMPDIR/WXA"     # where you store the weather tail message
@@ -201,37 +169,22 @@ function init_warnings {
 
 }
 
-function autosky_log {
+function autoskymulti_log {
 
-	echo "$(date) - $1" >>$AutoSky_log
+	echo "$(date) - $1" >>$AutoSkyMulti_log
 
 }
 
-# Start main Script
+AutoSkyMulti_init
 
-AutoSky_init
-
-# IS AUTOSKY ENABLED?
-#if [ ! -e "$ENABLEFILE" ]
-#  then
-#	echo "AutoSky not enabled - use AutoSky.ON to enable"
-#	exit -90
-#  else
-#	touch "$ENABLEFILE"	# Keep enable file with recent timestamp
-#fi
-
-# Check for test file set in autosky.ini
+# Check for test file set in AutoSkyMulti.ini
 if [ -e "$TMPDIR/test.file" ]; then
 	/bin/cp -f $TMPDIR/test.file $NFILE1
 	/bin/rm -f $TMPDIR/test.file
 else
 	# No test file PULL THE REAL INFORMATION FROM NWS
-	#/usr/bin/wget --no-check-certificate  -O $NFILE1 $OFILE  2>/dev/null
 	if [ -e $NFILE1 ]; then /bin/rm $NFILE1; fi
-	#I=0
 	for X in "${OF[@]}"; do
-		#/usr/bin/wget $X --no-check-certificate -O ->> $NFILE1
-		#/usr/bin/curl $X
 		/usr/bin/curl -s $X >>$NFILE1
 	done
 fi
@@ -247,36 +200,28 @@ fi
 /bin/sed -i 's%</title>%%' $NFILE2
 /bin/sed -i 's%<title>%%' $NFILE2
 
-# NFILE1 contains complete message
-# NFILE2 contains just alert message
-
 # DOES NEW NWS FILE = OLD SAVE FILE
-#
 /usr/bin/diff $NFILE2 $FILESAVE >/dev/null 2>/dev/null
 # If match=0  non match=1 error=2
 # This result is printed if running manually ignored otherwise
 Xresult="$?"
-echo "AutoSky Xresult is $Xresult"
-#cat $NFILE1
-#cat $NFILE2
+echo "AutoSkyMulti Xresult is $Xresult"
 
 case $Xresult in
 0)
-	# echo MATCH - NOTHING TO DO
+	# MATCH - NOTHING TO DO
 	exit 0
 	;;
 1)
-	# echo CURRENT VS LAST MISMATCH - CHANGE ANNOUNCEMENT so CALL AutoSky2
-	# ./AutoSky2
+	# CURRENT VS LAST MISMATCH - CHANGE ANNOUNCEMENT
 	# IF RESULT HAS NO LINES - PROCESS ERROR BELOW
 	Xresult=$(wc -l <$NFILE2)
 
 	case $Xresult in
 	0)
-		# echo  "AutoSky2 FAILURE MODE 0 - FILE SHOULD HAVE AT LEAST ONE REMAINING LINE"
+		# FAILURE MODE 0 - FILE SHOULD HAVE AT LEAST ONE REMAINING LINE
 		exit -5
 		;;
-
 	*)
 		# MIGHT BE A CLEAR MESSAGE OR SINGLE or MULTIPLE ALERT
 		# CHECK FOR ALL CLEAR MESSAGE if NOT SET ANNOUNCEMENTS
@@ -284,18 +229,21 @@ case $Xresult in
 		Yresult=$?
 
 		if [ $Yresult -eq 1 ]; then
-			#  AutoSky2 MATCHED - NO W, W or As so CALL AutoSky3
-			# ./AutoSky3
+			#  MATCHED - NO W, W or As
 			# COMMIT TO CHANGE
 			# COPY CURRENT MESSAGE TO SAVE MESSAGE FILE
 			# THIS BECOMES THE "Existing" Weather Conditions
 			/bin/cp -f $NFILE2 $FILESAVE
-			# SAY "tones NWS HAS CLEARED ALL ALERTS, WATCHES and WARNINGS FOR AREA"
-			for Ni in $NODE; do
-				if [ ! -z "$Ni" ]; then /usr/sbin/asterisk -rx "rpt localplay $Ni $WXA/$A1FILE"; fi
-			done
-			/bin/cp -f $WXA/Boop.ulaw /home/repeater/ct-local.ulaw
-			/bin/cp -f $WXA/Beep.ulaw /home/repeater/ct-link.ulaw
+			# SAY NWS HAS CLEARED ALL ALERTS, WATCHES and WARNINGS
+			if [ "$SAYALLCLEAR" = true ]; then
+				for Ni in $NODE; do
+					if [ ! -z "$Ni" ]; then /usr/sbin/asterisk -rx "rpt localplay $Ni $WXA/$A1FILE"; fi
+				done
+			fi
+			if [ "$AUTOCT" = true ]; then
+				/bin/cp -f $WXA/$LOCALCT $CTDIR/$ASTLOCALCT
+				/bin/cp -f $WXA/$LINKCT $CTDIR/$ASTLINKCT
+			fi
 			# Clear Warnigs text file
 			>$TMPDIR/warnings.txt
 
@@ -303,12 +251,12 @@ case $Xresult in
 			# THE WORD-SPACE WAV IS ASN99
 			/bin/rm -f $WXT/$TAILMSG
 			/bin/cp -f $WXA/asn99.wav $WXT/$TAILMSG
-			autosky_log "Clear Alerts"
+			autoskymulti_log "Clear Alerts"
 			/bin/sync
 			exit 0
 			# exit $?
 		else
-			# NO MATCH - WE HAVE A CHANGE IN THE WEATHER so CALL AutoSky4
+			# NO MATCH - WE HAVE A CHANGE IN THE WEATHER
 			init_warnings
 
 			# COMMITTED TO CHANGE
@@ -377,7 +325,7 @@ case $Xresult in
 						/bin/cp -f $TMPDIR/$TFILEW $WXT/$TAILMSG
 
 						FOUNDONE=1
-						autosky_log "Alert issued - $line"
+						autoskymulti_log "Alert issued - $line"
 						/bin/sync
 						break
 					else
@@ -392,7 +340,6 @@ case $Xresult in
 			/bin/sync
 
 			if [[ $FOUNDONE -eq 0 ]]; then
-
 				# DIDN'T FIND A MATCH - PLAY ERROR TONE
 				for Ni in $NODE; do
 					if [ ! -z "$Ni" ]; then /usr/sbin/asterisk -rx "rpt localplay $Ni $WXA/$A3FILE"; fi
@@ -401,42 +348,41 @@ case $Xresult in
 				# Copy 1 second of tail to message
 				/bin/cp -f $WXT/$TAILMSG $TMPDIR/$TFILEW
 				$CATWAV $TMPDIR/$TFILEW $WXA/silence1.wav $WXT/$TAILMSG
-				#
-				# NOW SAY SOMETHING ABOUT THE NEW LEVEL OF WARNINGS
-				# THIS WILL BE A LOCAL PLAY OF A2FILE
-				#for Ni in $NODE; do
-				#	if [ ! -z "$Ni" ]; then /usr/sbin/asterisk -rx "rpt localplay $Ni $WXA/$A2FILE"; fi
-				#done
-				#/bin/sleep 3
-				# NOW PLAY THE NEW WX STATUS
-				#MSG=$(basename $TAILMSG .wav)
-				#for Ni in $NODE; do
-				#	if [ ! -z "$Ni" ]; then /usr/sbin/asterisk -rx "rpt localplay $Ni $WXT/$MSG"; fi
-				#done
-				/bin/cp -f $WXA/Stardust.ulaw /home/repeater/ct-local.ulaw
-				/bin/cp -f $WXA/Stardust.ulaw /home/repeater/ct-link.ulaw
-			#     exit $?
 
+				if [ "$SAYALERT" = true ]; then
+					# NOW SAY SOMETHING ABOUT THE NEW LEVEL OF WARNINGS
+					# THIS WILL BE A LOCAL PLAY OF A2FILE
+					for Ni in $NODE; do
+						if [ ! -z "$Ni" ]; then /usr/sbin/asterisk -rx "rpt localplay $Ni $WXA/$A2FILE"; fi
+					done
+					/bin/sleep 3
+					# NOW PLAY THE NEW WX STATUS
+					MSG=$(basename $TAILMSG .wav)
+					for Ni in $NODE; do
+						if [ ! -z "$Ni" ]; then /usr/sbin/asterisk -rx "rpt localplay $Ni $WXT/$MSG"; fi
+					done
+				fi
+				if [ "$AUTOCT" = true ]; then
+					/bin/cp -f $WXA/Stardust.ulaw /home/repeater/ct-local.ulaw
+					/bin/cp -f $WXA/Stardust.ulaw /home/repeater/ct-link.ulaw
+				fi
 			fi
-
 			exit 0
-
 		fi
 		;;
 	esac
 	exit $?
 	;;
 2)
-	#    	    echo DIFF COMMAND FAILED. Xresult was 2.
-	#           Probably no first time saved file so initialize it
+	#DIFF COMMAND FAILED. Xresult was 2.
+	#Probably no first time saved file so initialize it
 	/bin/cp -f $NFILE1 $FILESAVE
 
 	exit -92
 	;;
 *)
-	#	    echo BIG FAIL. Xresult was NOT 0, 1 or 2.
+	#BIG FAIL. Xresult was NOT 0, 1 or 2.
 	exit -93
 	;;
 esac
-
 exit -94
