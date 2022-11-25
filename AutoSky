@@ -243,9 +243,9 @@ if [ -e "$TMPDIR/test.file" ]
 fi
 
 # Remove wrong <title> sections
-sed -n '/<title>Current/d' $NFILE1
+/bin/sed -i '/Current/d' $NFILE1
 # COPY ONLY ONE SECTION TYPE (can be multiple)
-sed -n '/title/p' < $NFILE1 > $NFILE2
+/bin/sed -n '/title/p' < $NFILE1 > $NFILE2
 
 /bin/sed -i "1d" $NFILE2
 
