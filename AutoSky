@@ -234,6 +234,7 @@ if [ -e "$TMPDIR/test.file" ]
 		# No test file PULL THE REAL INFORMATION FROM NWS
 		#/usr/bin/wget --no-check-certificate  -O $NFILE1 $OFILE  2>/dev/null
 		if [ -e $NFILE1 ] ; then /bin/rm $NFILE1 ; fi
+		touch $NFILE1
 		#I=0
 		for OF in "${OF[@]}"
 		do
