@@ -84,12 +84,25 @@ BUILD3=".wav"
 
 }
 
+# Declare OFILES
+function init_ofiles {
+declare -g -a OF
+
+# LIST OF COUNTIES
+OF[1]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC045&y=0" # Faulkner
+OF[2]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC051&y=0" # Garland
+OF[3]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC053&y=0" # Grant
+OF[4]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC085&y=0" # Lonoke
+OF[5]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC105&y=0" # Perry
+OF[6]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC119&y=0" # Pulaski
+OF[7]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC125&y=0" # Saline
+}
+
 # Initialize Message Strings
 function init_warnings {
 
 declare -g -a WS
 declare -g -a WA
-declare -g -a OF
 
 # WARNING STRINGS
 
@@ -193,16 +206,6 @@ WA[46]="46"
 WA[47]="47"
 WA[48]="48"
 
-# LIST OF COUNTIES
-
-OF[1]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC045&y=0" # Faulkner
-OF[2]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC051&y=0" # Garland
-OF[3]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC053&y=0" # Grant
-OF[4]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC085&y=0" # Lonoke
-OF[5]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC105&y=0" # Perry
-OF[6]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC119&y=0" # Pulaski
-OF[7]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC125&y=0" # Saline
-
 }
 
 function autosky_log {
@@ -238,8 +241,8 @@ if [ -e "$TMPDIR/test.file" ]
 		for X in "${OF[@]}"
 		do
 			#/usr/bin/wget $X --no-check-certificate -O ->> $NFILE1
-			/usr/bin/curl $X
-			#/usr/bin/curl $X >> $NFILE1
+			#/usr/bin/curl $X
+			/usr/bin/curl $X >> $NFILE1
 		done
 fi
 
