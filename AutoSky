@@ -294,6 +294,8 @@ case $Xresult in
 			for Ni in $NODE; do
 				if [ ! -z "$Ni" ]; then /usr/sbin/asterisk -rx "rpt localplay $Ni $WXA/$A1FILE"; fi
 			done
+			/bin/cp -f $WXA/Boop.ulaw /home/repeater/ct-local.ulaw
+			/bin/cp -f $WXA/Beep.ulaw /home/repeater/ct-link.ulaw
 			# Clear Warnigs text file
 			>$TMPDIR/warnings.txt
 
@@ -402,15 +404,17 @@ case $Xresult in
 				#
 				# NOW SAY SOMETHING ABOUT THE NEW LEVEL OF WARNINGS
 				# THIS WILL BE A LOCAL PLAY OF A2FILE
-				for Ni in $NODE; do
-					if [ ! -z "$Ni" ]; then /usr/sbin/asterisk -rx "rpt localplay $Ni $WXA/$A2FILE"; fi
-				done
-				/bin/sleep 3
+				#for Ni in $NODE; do
+				#	if [ ! -z "$Ni" ]; then /usr/sbin/asterisk -rx "rpt localplay $Ni $WXA/$A2FILE"; fi
+				#done
+				#/bin/sleep 3
 				# NOW PLAY THE NEW WX STATUS
-				MSG=$(basename $TAILMSG .wav)
-				for Ni in $NODE; do
-					if [ ! -z "$Ni" ]; then /usr/sbin/asterisk -rx "rpt localplay $Ni $WXT/$MSG"; fi
-				done
+				#MSG=$(basename $TAILMSG .wav)
+				#for Ni in $NODE; do
+				#	if [ ! -z "$Ni" ]; then /usr/sbin/asterisk -rx "rpt localplay $Ni $WXT/$MSG"; fi
+				#done
+				/bin/cp -f $WXA/Stardust.ulaw /home/repeater/ct-local.ulaw
+				/bin/cp -f $WXA/Stardust.ulaw /home/repeater/ct-link.ulaw
 			#     exit $?
 
 			fi
