@@ -238,8 +238,8 @@ if [ -e "$TMPDIR/test.file" ]
 		#I=0
 		for OF in "${OF[@]}"
 		do
-			#/usr/bin/wget --no-check-certificate -O $NFILE1$I $OF 2>/dev/null
-			/usr/bin/curl $OF
+			/usr/bin/wget $OF --no-check-certificate -O ->> $NFILE1
+			#/usr/bin/curl $OF
 			#/usr/bin/curl $OF >> $NFILE1
 		done
 fi
