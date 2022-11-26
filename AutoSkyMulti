@@ -444,9 +444,8 @@ case $Xresult in
 				# Change to ALERT ACTIVE courtesy tone if ALERTS file contains a trigger
 				if [ "$AUTOCT" = true ]; then
 					for WX in $TRIGCT; do
-						/bin/grep -i "$WX" $NFILE2 >/dev/null
-						testResult=$?
-						if [ $testResult -eq 0 ]; then
+						echo "Testing for CT trigger..."
+						if /bin/grep -i "$WX" $NFILE2; then
 							echo "Changing to ALERT CT"
 							/bin/cp -f $WXA/$WXCT $CTDIR/$ASTLOCALCT
 							/bin/cp -f $WXA/$WXCT $CTDIR/$ASTLINKCT
