@@ -444,7 +444,8 @@ case $Xresult in
 				if [ "$AUTOCT" = true ]; then
 					for WX in $TRIGCT; do
 						/bin/grep -i "$WX" $NFILE2 >/dev/null
-						if [ $? = 0 ]; then
+						testResult=$?
+						if [ $testResult -eq 0 ]; then
 							/bin/cp -f $WXA/$WXCT $CTDIR/$ASTLOCALCT
 							/bin/cp -f $WXA/$WXCT $CTDIR/$ASTLINKCT
 							break
