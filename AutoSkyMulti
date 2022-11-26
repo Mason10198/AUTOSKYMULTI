@@ -221,7 +221,9 @@ fi
 
 # Entirely remove certian alerts
 # Uncomment ones to filter out
+# REMOVE COLON TO ENABLE BLOCKING
 if [ "$BLOCKING" = true ]; then
+	:
 	#/bin/sed -i '/Statement/d' $NFILE2
 	#/bin/sed -i '/Advisory/d' $NFILE2
 	#/bin/sed -i '/Watch/d' $NFILE2
