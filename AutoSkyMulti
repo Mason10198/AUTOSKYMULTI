@@ -443,7 +443,7 @@ case $Xresult in
 				fi
 				# Change to ALERT ACTIVE courtesy tone if ALERTS file contains a trigger
 				if [ "$AUTOCT" = true ]; then
-					for WX in $TRIGCT; do
+					for WX in "${TRIGCT[@]}"; do
 						echo "Testing for CT trigger..."
 						if /bin/grep -i "$WX" $NFILE2; then
 							echo "Changing to ALERT CT"
