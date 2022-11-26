@@ -319,6 +319,7 @@ case $Xresult in
 				done
 			fi
 			if [ "$AUTOCT" = true ]; then
+				echo "Changing to NORMAL CT"
 				/bin/cp -f $WXA/$LOCALCT $CTDIR/$ASTLOCALCT
 				/bin/cp -f $WXA/$LINKCT $CTDIR/$ASTLINKCT
 			fi
@@ -446,6 +447,7 @@ case $Xresult in
 						/bin/grep -i "$WX" $NFILE2 >/dev/null
 						testResult=$?
 						if [ $testResult -eq 0 ]; then
+							echo "Changing to ALERT CT"
 							/bin/cp -f $WXA/$WXCT $CTDIR/$ASTLOCALCT
 							/bin/cp -f $WXA/$WXCT $CTDIR/$ASTLINKCT
 							break
