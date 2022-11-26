@@ -1,0 +1,81 @@
+<?xml version = '1.0' encoding = 'UTF-8' standalone = 'yes'?>
+
+<!--
+This atom/xml feed is an index to active advisories, watches and warnings 
+issued by the National Weather Service.  This index file is not the complete 
+Common Alerting Protocol (CAP) alert message.  To obtain the complete CAP 
+alert, please follow the links for each entry in this index.  Also note the 
+CAP message uses a style sheet to convey the information in a human readable 
+format.  Please view the source of the CAP message to see the complete data 
+set.  Not all information in the CAP message is contained in this index of 
+active alerts.
+-->
+
+<feed
+xmlns = 'http://www.w3.org/2005/Atom'
+xmlns:cap = 'urn:oasis:names:tc:emergency:cap:1.1'
+xmlns:ha = 'http://www.alerting.net/namespace/index_1.0'
+>
+<!-- TZN = <> -->
+<!-- TZO = <> -->
+<!-- http-date = Fri, 11 Nov 2022 23:30:52 GMT -->
+<id>https://alerts.weather.gov/cap/wwaatmget.php?x=ARC125&amp;y=0</id>
+<generator>NWS CAP Server</generator>
+<updated>2022-11-25T23:30:52+00:00</updated>
+<author>
+<name>w-nws.webmaster@noaa.gov</name>
+</author>
+<title>Current Watches, Warnings and Advisories for Saline (ARC125) Arkansas Issued by the National Weather Service</title>
+<link href="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC125&amp;y=0"/>
+
+  	<entry>
+  	<id>https://alerts.weather.gov/cap/wwaatmget.php?x=ARC125&amp;y=0</id>
+  	<updated>2022-11-25T23:30:52+00:00</updated>
+  	<author>
+  	<name>w-nws.webmaster@noaa.gov</name>
+  	</author>
+  	<title>There are no active watches, warnings or advisories</title>
+  	<link href="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC125&amp;y=0"/>
+  	</entry>
+  	</feed>
+  	<?xml version = '1.0' encoding = 'UTF-8' standalone = 'yes'?>
+
+<!--
+This atom/xml feed is an index to active advisories, watches and warnings 
+issued by the National Weather Service.  This index file is not the complete 
+Common Alerting Protocol (CAP) alert message.  To obtain the complete CAP 
+alert, please follow the links for each entry in this index.  Also note the 
+CAP message uses a style sheet to convey the information in a human readable 
+format.  Please view the source of the CAP message to see the complete data 
+set.  Not all information in the CAP message is contained in this index of 
+active alerts.
+-->
+
+<feed
+xmlns = 'http://www.w3.org/2005/Atom'
+xmlns:cap = 'urn:oasis:names:tc:emergency:cap:1.1'
+xmlns:ha = 'http://www.alerting.net/namespace/index_1.0'
+>
+<!-- TZN = <> -->
+<!-- TZO = <> -->
+<!-- http-date = Fri, 11 Nov 2022 23:30:52 GMT -->
+<id>https://alerts.weather.gov/cap/wwaatmget.php?x=ARC125&amp;y=0</id>
+<generator>NWS CAP Server</generator>
+<updated>2022-11-25T23:30:52+00:00</updated>
+<author>
+<name>w-nws.webmaster@noaa.gov</name>
+</author>
+<title>Current Watches, Warnings and Advisories for Saline (ARC125) Arkansas Issued by the National Weather Service</title>
+<link href="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC125&amp;y=0"/>
+
+  	<entry>
+  	<id>https://alerts.weather.gov/cap/wwaatmget.php?x=ARC125&amp;y=0</id>
+  	<updated>2022-11-25T23:30:52+00:00</updated>
+  	<author>
+  	<name>w-nws.webmaster@noaa.gov</name>
+  	</author>
+  	<title>Winter Storm Warning issued November 25 at 1:10PM MST until November 26 at 11:00AM MST by NWS</title>
+  	<link href="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC125&amp;y=0"/>
+  	</entry>
+  	</feed>
+  	

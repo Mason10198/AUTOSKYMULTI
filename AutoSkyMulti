@@ -49,8 +49,8 @@ function AutoSkyMulti_init {
 
 }
 
+# LIST OF COUNTIES TO PULL ALERTS FOR
 declare -g -a OF
-# LIST OF COUNTIES
 OF[1]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC045&y=0" # Faulkner
 OF[2]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC051&y=0" # Garland
 OF[3]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC053&y=0" # Grant
@@ -58,6 +58,27 @@ OF[4]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC085&y=0" # Lonoke
 OF[5]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC105&y=0" # Perry
 OF[6]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC119&y=0" # Pulaski
 OF[7]="https://alerts.weather.gov/cap/wwaatmget.php?x=ARC125&y=0" # Saline
+
+# LIST OF ALERTS THAT TRIGGER COURTESY TONE CHANGE
+declare -g -a TRIGCT
+TRIGCT[1]="Hurricane Force Wind Warning"
+TRIGCT[2]="Severe Thunderstorm Warning"
+TRIGCT[3]="Severe Thunderstorm Watch"
+TRIGCT[4]="Tropical Storm Warning"
+TRIGCT[5]="Coastal Flood Warning"
+TRIGCT[6]="Winter Storm Warning"
+TRIGCT[7]="Thunderstorm Warning"
+TRIGCT[8]="Extreme Wind Warning"
+TRIGCT[9]="Storm Surge Warning"
+TRIGCT[10]="River Flood Warning"
+TRIGCT[11]="Flash Flood Warning"
+TRIGCT[12]="Ice Storm Warning"
+TRIGCT[13]="Hurricane Warning"
+TRIGCT[14]="Blizzard Warning"
+TRIGCT[15]="Tornado Warning"
+TRIGCT[16]="Hurricane Watch"
+TRIGCT[17]="Tornado Watch"
+TRIGCT[18]="Flood Warning"
 
 # Initialize Message Strings
 function init_warnings {
@@ -170,9 +191,7 @@ function init_warnings {
 }
 
 function autoskymulti_log {
-
 	echo "$(date) - $1" >>$AutoSkyMulti_log
-
 }
 
 AutoSkyMulti_init
@@ -199,6 +218,63 @@ fi
 # NOW GET RID OF THE MARKERS
 /bin/sed -i 's%</title>%%' $NFILE2
 /bin/sed -i 's%<title>%%' $NFILE2
+
+# Entirely remove certian alerts
+# Uncomment ones to filter out
+if [ "$BLOCKING" = true ]; then
+	#/bin/sed -i '/Statement/d' $NFILE2
+	#/bin/sed -i '/Advisory/d' $NFILE2
+	#/bin/sed -i '/Watch/d' $NFILE2
+	#/bin/sed -i '/Warning/d' $NFILE2
+	#/bin/sed -i '/Hurricane Force Wind Warning/d' $NFILE2
+	#/bin/sed -i '/Severe Thunderstorm Warning/d' $NFILE2
+	#/bin/sed -i '/Severe Thunderstorm Watch/d' $NFILE2
+	#/bin/sed -i '/Winter Weather Advisory/d' $NFILE2
+	#/bin/sed -i '/Tropical Storm Warning/d' $NFILE2
+	#/bin/sed -i '/Special Marine Warning/d' $NFILE2
+	#/bin/sed -i '/Freezing Rain Advisory/d' $NFILE2
+	#/bin/sed -i '/Special Weather Statement/d' $NFILE2
+	#/bin/sed -i '/Excessive Heat Warning/d' $NFILE2
+	#/bin/sed -i '/Coastal Flood Advisory/d' $NFILE2
+	#/bin/sed -i '/Coastal Flood Warning/d' $NFILE2
+	#/bin/sed -i '/Winter Storm Warning/d' $NFILE2
+	#/bin/sed -i '/Tropical Storm Watch/d' $NFILE2
+	#/bin/sed -i '/Thunderstorm Warning/d' $NFILE2
+	#/bin/sed -i '/Small Craft Advisory/d' $NFILE2
+	#/bin/sed -i '/Extreme Wind Warning/d' $NFILE2
+	#/bin/sed -i '/Excessive Heat Watch/d' $NFILE2
+	#/bin/sed -i '/Wind Chill Advisory/d' $NFILE2
+	#/bin/sed -i '/Storm Surge Warning/d' $NFILE2
+	#/bin/sed -i '/River Flood Warning/d' $NFILE2
+	#/bin/sed -i '/Flash Flood Warning/d' $NFILE2
+	#/bin/sed -i '/Coastal Flood Watch/d' $NFILE2
+	#/bin/sed -i '/Winter Storm Watch/d' $NFILE2
+	#/bin/sed -i '/Wind Chill Warning/d' $NFILE2
+	#/bin/sed -i '/Thunderstorm Watch/d' $NFILE2
+	#/bin/sed -i '/Fire Weather Watch/d' $NFILE2
+	#/bin/sed -i '/Dense Fog Advisory/d' $NFILE2
+	#/bin/sed -i '/Storm Surge Watch/d' $NFILE2
+	#/bin/sed -i '/River Flood Watch/d' $NFILE2
+	#/bin/sed -i '/Ice Storm Warning/d' $NFILE2
+	#/bin/sed -i '/Hurricane Warning/d' $NFILE2
+	#/bin/sed -i '/High Wind Warning/d' $NFILE2
+	#/bin/sed -i '/Flash Flood Watch/d' $NFILE2
+	#/bin/sed -i '/Red Flag Warning/d' $NFILE2
+	#/bin/sed -i '/Blizzard Warning/d' $NFILE2
+	#/bin/sed -i '/Tornado Warning/d' $NFILE2
+	#/bin/sed -i '/Hurricane Watch/d' $NFILE2
+	#/bin/sed -i '/High Wind Watch/d' $NFILE2
+	#/bin/sed -i '/Frost Advisory/d' $NFILE2
+	#/bin/sed -i '/Freeze Warning/d' $NFILE2
+	#/bin/sed -i '/Wind Advisory/d' $NFILE2
+	#/bin/sed -i '/Tornado Watch/d' $NFILE2
+	#/bin/sed -i '/Storm Warning/d' $NFILE2
+	#/bin/sed -i '/Heat Advisory/d' $NFILE2
+	#/bin/sed -i '/Flood Warning/d' $NFILE2
+	#/bin/sed -i '/Gale Warning/d' $NFILE2
+	#/bin/sed -i '/Freeze Watch/d' $NFILE2
+	#/bin/sed -i '/Flood Watch/d' $NFILE2
+fi
 
 # DOES NEW NWS FILE = OLD SAVE FILE
 /usr/bin/diff $NFILE2 $FILESAVE >/dev/null 2>/dev/null
@@ -362,9 +438,16 @@ case $Xresult in
 						if [ ! -z "$Ni" ]; then /usr/sbin/asterisk -rx "rpt localplay $Ni $WXT/$MSG"; fi
 					done
 				fi
+				# Change to ALERT ACTIVE courtesy tone if ALERTS file contains a trigger
 				if [ "$AUTOCT" = true ]; then
-					/bin/cp -f $WXA/Stardust.ulaw /home/repeater/ct-local.ulaw
-					/bin/cp -f $WXA/Stardust.ulaw /home/repeater/ct-link.ulaw
+					for WX in $TRIGCT; do
+						/bin/grep -i $WX $NFILE2 >/dev/null
+						if [ $? = 0 ]; then
+							/bin/cp -f $WXA/$WXCT $CTDIR/$ASTLOCALCT
+							/bin/cp -f $WXA/$WXCT $CTDIR/$ASTLINKCT
+							break
+						fi
+					done
 				fi
 			fi
 			exit 0
