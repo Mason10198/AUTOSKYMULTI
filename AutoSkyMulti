@@ -318,11 +318,6 @@ case $Xresult in
 					if [ ! -z "$Ni" ]; then /usr/sbin/asterisk -rx "rpt localplay $Ni $WXA/$A1FILE"; fi
 				done
 			fi
-			if [ "$AUTOCT" = true ]; then
-				autoskymulti_log "Changing to NORMAL CT"
-				/bin/cp -f $WXA/$LOCALCT $CTDIR/$ASTLOCALCT
-				/bin/cp -f $WXA/$LINKCT $CTDIR/$ASTLINKCT
-			fi
 			# Clear Warnigs text file
 			>$TMPDIR/warnings.txt
 
@@ -330,8 +325,21 @@ case $Xresult in
 			# THE WORD-SPACE WAV IS ASN99
 			/bin/rm -f $WXT/$TAILMSG
 			/bin/cp -f $WXA/asn99.wav $WXT/$TAILMSG
-			autoskymulti_log "Clear Alerts"
+			autoskymulti_log "Alerts Cleared"
+			if [ "$AUTOCT" = true ]; then
+				autoskymulti_log "Changing to NORMAL CT"
+				/bin/cp -f $WXA/$LOCALCT $CTDIR/$ASTLOCALCT
+				/bin/cp -f $WXA/$LINKCT $CTDIR/$ASTLINKCT
+			fi
 			/bin/sync
+			if [ "$PUSHOVER" = true ]; then
+				autoskymulti_log "Sending Pushover Message"
+				curl -s \
+					--form-string "token=$POTOKEN" \
+					--form-string "user=$POUSER" \
+					--form-string "message=WX Alerts Cleared" \
+					https://api.pushover.net/1/messages.json >/dev/null
+			fi
 			exit 0
 			# exit $?
 		else
@@ -406,6 +414,14 @@ case $Xresult in
 						FOUNDONE=1
 						autoskymulti_log "Alert issued - $line"
 						/bin/sync
+						if [ "$PUSHOVER" = true ]; then
+							autoskymulti_log "Sending Pushover Message"
+							curl -s \
+								--form-string "token=$POTOKEN" \
+								--form-string "user=$POUSER" \
+								--form-string "message=Alert Issued - $line" \
+								https://api.pushover.net/1/messages.json >/dev/null
+						fi
 						break
 					else
 						# CURRENT TEST DOES NOT MATCH - SHOULD IT BE ADDED TO LIST?
@@ -448,6 +464,7 @@ case $Xresult in
 							autoskymulti_log "Changing to ALERT CT"
 							/bin/cp -f $WXA/$WXCT $CTDIR/$ASTLOCALCT
 							/bin/cp -f $WXA/$WXCT $CTDIR/$ASTLINKCT
+							/bin/sync
 							break
 						fi
 					done
