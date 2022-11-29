@@ -205,6 +205,10 @@ else
 	if [ -e $NFILE1 ]; then /bin/rm $NFILE1; fi
 	for X in "${OF[@]}"; do
 		/usr/bin/curl -s $X >>$NFILE1
+		curlstat="$?"
+		if [ $curlstat -ne 0 ]; then # Exit if curl couldn't pull data
+			exit -95
+		fi
 	done
 fi
 
