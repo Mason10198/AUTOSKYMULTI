@@ -207,6 +207,8 @@ else
 		/usr/bin/curl -s $X >>$NFILE1
 		curlstat="$?"
 		if [ $curlstat -ne 0 ]; then # Exit if curl couldn't pull data
+			autoskymulti_log "Error getting data from NWS!"
+			echo "Error getting data from NWS!"
 			exit -95
 		fi
 	done
