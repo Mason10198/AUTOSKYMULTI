@@ -225,6 +225,9 @@ fi
 /bin/sed -i 's%</title>%%' $NFILE2
 /bin/sed -i 's%<title>%%' $NFILE2
 
+# Remove extra whitespace
+/bin/sed -i 's/^[ \t]*//' $NFILE2
+
 # Entirely remove certian alerts
 # Uncomment ones to filter out
 # REMOVE COLON TO ENABLE BLOCKING
@@ -285,7 +288,7 @@ if [ "$BLOCKING" = true ]; then
 fi
 
 # DOES NEW NWS FILE = OLD SAVE FILE
-/usr/bin/diff $NFILE2 $FILESAVE >/dev/null 2>/dev/null
+/usr/bin/diff -iabBEqw $NFILE2 $FILESAVE >/dev/null 2>/dev/null
 # If match=0  non match=1 error=2
 # This result is printed if running manually ignored otherwise
 Xresult="$?"
