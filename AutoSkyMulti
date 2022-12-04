@@ -217,18 +217,19 @@ fi
 # Remove wrong <title> sections
 /bin/sed -i '/Current/d' $NFILE1
 # COPY ONLY ONE SECTION TYPE (can be multiple)
-/bin/sed -i '/title/p' $NFILE1
-/bin/sed -i "1d" $NFILE1
+/bin/sed -n '/title/p' <$NFILE1 >$NFILE2
+
+/bin/sed -i "1d" $NFILE2
 
 # NOW GET RID OF THE MARKERS
-/bin/sed -i 's%</title>%%' $NFILE1
-/bin/sed -i 's%<title>%%' $NFILE1
+/bin/sed -i 's%</title>%%' $NFILE2
+/bin/sed -i 's%<title>%%' $NFILE2
 
 # Remove extra whitespace
-/bin/sed -i 's/^[ \t]*//' $NFILE1
+/bin/sed -i 's/^[ \t]*//' $NFILE2
 
 # Remove duplicate lines
-/usr/bin/awk '!seen[$0]++' $NFILE1 >$NFILE2
+/usr/bin/gawk -i inplace '!seen[$0]++' $NFILE2
 
 # Entirely remove certian alerts
 # Uncomment ones to filter out
@@ -325,13 +326,6 @@ case $Xresult in
 			/bin/cp -f $NFILE2 $FILESAVE
 			# SAY NWS HAS CLEARED ALL ALERTS, WATCHES and WARNINGS
 			if [ "$SAYALLCLEAR" = true ]; then
-				if [ "$PUSHOVER" = true ]; then
-					curl -s \
-						--form-string "token=$POTOKEN" \
-						--form-string "user=$POUSER" \
-						--form-string "message=WX Alerts Cleared" \
-						https://api.pushover.net/1/messages.json >/dev/null
-				fi
 				for Ni in $NODE; do
 					if [ ! -z "$Ni" ]; then /usr/sbin/asterisk -rx "rpt localplay $Ni $WXA/$A1FILE"; fi
 				done
@@ -349,6 +343,13 @@ case $Xresult in
 				/bin/cp -f $WXA/$LINKCT $CTDIR/$ASTLINKCT
 			fi
 			/bin/sync
+			if [ "$PUSHOVER" = true ]; then
+				curl -s \
+					--form-string "token=$POTOKEN" \
+					--form-string "user=$POUSER" \
+					--form-string "message=WX Alerts Cleared" \
+					https://api.pushover.net/1/messages.json >/dev/null
+			fi
 			exit 0
 			# exit $?
 		else
@@ -424,7 +425,6 @@ case $Xresult in
 						autoskymulti_log "Alert issued - $line"
 						/bin/sync
 						if [ "$PUSHOVER" = true ]; then
-							autoskymulti_log "Sending Pushover Message"
 							curl -s \
 								--form-string "token=$POTOKEN" \
 								--form-string "user=$POUSER" \
@@ -470,7 +470,6 @@ case $Xresult in
 				if [ "$AUTOCT" = true ]; then
 					for WX in "${TRIGCT[@]}"; do
 						if /bin/grep -i "$WX" $NFILE2; then
-							autoskymulti_log "Changing to ALERT CT"
 							/bin/cp -f $WXA/$WXCT $CTDIR/$ASTLOCALCT
 							/bin/cp -f $WXA/$WXCT $CTDIR/$ASTLINKCT
 							/bin/sync
