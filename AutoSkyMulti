@@ -233,9 +233,7 @@ fi
 
 # Entirely remove certian alerts
 # Uncomment ones to filter out
-# REMOVE COLON TO ENABLE BLOCKING
 if [ "$BLOCKING" = true ]; then
-	:
 	#/bin/sed -i '/Statement/d' $NFILE2
 	#/bin/sed -i '/Advisory/d' $NFILE2
 	#/bin/sed -i '/Watch/d' $NFILE2
@@ -339,8 +337,8 @@ case $Xresult in
 			/bin/cp -f $WXA/asn99.wav $WXT/$TAILMSG
 			autoskymulti_log "Alerts Cleared"
 			if [ "$AUTOCT" = true ]; then
-				/bin/cp -f $WXA/$LOCALCT $CTDIR/$ASTLOCALCT
-				/bin/cp -f $WXA/$LINKCT $CTDIR/$ASTLINKCT
+				/bin/mv -f $TMPDIR/$ASTLOCALCT.bak $CTDIR/$ASTLOCALCT
+				/bin/mv -f $TMPDIR/$ASTLINKCT.bak $CTDIR/$ASTLINKCT
 			fi
 			/bin/sync
 			if [ "$PUSHOVER" = true ]; then
@@ -470,8 +468,10 @@ case $Xresult in
 				if [ "$AUTOCT" = true ]; then
 					for WX in "${TRIGCT[@]}"; do
 						if /bin/grep -i "$WX" $NFILE2; then
-							/bin/cp -f $WXA/$WXCT $CTDIR/$ASTLOCALCT
-							/bin/cp -f $WXA/$WXCT $CTDIR/$ASTLINKCT
+							/bin/mv -f $CTDIR/$ASTLOCALCT $CTDIR/$ASTLOCALCT.bak
+							/bin/mv -f $CTDIR/$ASTLINKCT $CTDIR/$ASTLINKCT.bak
+							/bin/cp -f $CTDIR/$WXCT $CTDIR/$ASTLOCALCT
+							/bin/cp -f $CTDIR/$WXCT $CTDIR/$ASTLINKCT
 							/bin/sync
 							break
 						fi
