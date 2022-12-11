@@ -28,8 +28,8 @@ function AutoSkyMulti_init {
 		AutoSkyMulti_log="$TMPDIR/AutoSkyMulti-log.txt"
 	fi
 	#
-	WXT="$TMPDIR/WXA"     # where you store the weather tail message
-	TAILMSG="wx-tail.wav" # point to this file in rpt.conf
+	WXT="/home/repeater/sounds"     # where you store the weather tail message
+	TAILMSG="tail.wav" # point to this file in rpt.conf
 	WXA="$BASEDIR/SOUNDS" # where the sounds are
 	TFILEW="alert.wav"    # temp file
 
@@ -337,8 +337,7 @@ case $Xresult in
 			/bin/cp -f $WXA/asn99.wav $WXT/$TAILMSG
 			autoskymulti_log "Alerts Cleared"
 			if [ "$AUTOCT" = true ]; then
-				/bin/mv -f $TMPDIR/$ASTLOCALCT.bak $CTDIR/$ASTLOCALCT
-				/bin/mv -f $TMPDIR/$ASTLINKCT.bak $CTDIR/$ASTLINKCT
+				/usr/local/sbin/changect NORMAL
 			fi
 			/bin/sync
 			if [ "$PUSHOVER" = true ]; then
@@ -468,10 +467,7 @@ case $Xresult in
 				if [ "$AUTOCT" = true ]; then
 					for WX in "${TRIGCT[@]}"; do
 						if /bin/grep -i "$WX" $NFILE2; then
-							/bin/mv -f $CTDIR/$ASTLOCALCT $CTDIR/$ASTLOCALCT.bak
-							/bin/mv -f $CTDIR/$ASTLINKCT $CTDIR/$ASTLINKCT.bak
-							/bin/cp -f $CTDIR/$WXCT $CTDIR/$ASTLOCALCT
-							/bin/cp -f $CTDIR/$WXCT $CTDIR/$ASTLINKCT
+							/usr/local/sbin/changect WX
 							/bin/sync
 							break
 						fi
