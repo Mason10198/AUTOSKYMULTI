@@ -28,10 +28,10 @@ function AutoSkyMulti_init {
 		AutoSkyMulti_log="$TMPDIR/AutoSkyMulti-log.txt"
 	fi
 	#
-	WXT="/home/repeater/sounds"     # where you store the weather tail message
-	TAILMSG="tail.wav" # point to this file in rpt.conf
-	WXA="$BASEDIR/SOUNDS" # where the sounds are
-	TFILEW="alert.wav"    # temp file
+	WXT="/home/repeater/sounds" # where you store the weather tail message
+	TAILMSG="tail.wav"          # point to this file in rpt.conf
+	WXA="$BASEDIR/SOUNDS"       # where the sounds are
+	TFILEW="alert.wav"          # temp file
 
 	#Xresult=98
 	#Yresult=99
@@ -234,6 +234,7 @@ fi
 # Entirely remove certian alerts
 # Uncomment ones to filter out
 if [ "$BLOCKING" = true ]; then
+	:
 	#/bin/sed -i '/Statement/d' $NFILE2
 	#/bin/sed -i '/Advisory/d' $NFILE2
 	#/bin/sed -i '/Watch/d' $NFILE2
